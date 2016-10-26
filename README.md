@@ -1,2 +1,3 @@
 # Gomoku
+
 Gomoku beginner project
