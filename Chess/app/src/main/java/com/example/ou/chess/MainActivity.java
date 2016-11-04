@@ -19,7 +19,7 @@ import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
-    private boolean isWhite=true;
+    private boolean isWhite=false;
     private GridView gridView;
     private List<Map<String,Object>> data_list;
     private SimpleAdapter simpleAdapter;
@@ -27,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int colomnCount= 15;
     private int[] icon=new int[rowCount*colomnCount];
     private String[] iconname=new String[rowCount*colomnCount];
-
+    private static Gomoku gomoku=new Gomoku(rowCount);
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,40 +49,73 @@ public class MainActivity extends AppCompatActivity {
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                //Toast.makeText(MainActivity.this,"You clicked item: "+ i +"  ",Toast.LENGTH_SHORT).show();
+                //Toast.makeText(MainActivity.this,"You clicked item: "+ i +"  "+ " x: "+ i/rowCount+" y: "+i%rowCount,Toast.LENGTH_SHORT).show();
                 //updateChessBoard(simpleAdapter,data_list,i);
                 long selectedIconName= Long.parseLong(data_list.get(i).get("image").toString());
-                Log.d("MainActivity", "selectedIconName: "+selectedIconName);
+                Log.d("MainActivity", "selectedIconName: "+selectedIconName+ " x: "+ i/rowCount+" y: "+i%rowCount +" isWhite: "+isWhite);
                 if(selectedIconName == R.drawable.chess_black || selectedIconName == R.drawable.chess_white){
                 //if(true){
                     Log.d("MainAcitivity","selectedIconName: "+ selectedIconName);
                     Toast.makeText(MainActivity.this,"Chessman exists!",Toast.LENGTH_SHORT).show();
                     return;
                 }
-                Map<String,Object> modifiedMap=new HashMap<String,Object>();
+                setData_list(i,(isWhite)?1:0);
+                /*Map<String,Object> modifiedMap=new HashMap<String,Object>();
                 long modifiedId;
                 if(isWhite) {
                     modifiedId = R.drawable.chess_white;
                 }else {
                     modifiedId = R.drawable.chess_black;
                 }
-                isWhite = !isWhite;
                 modifiedMap.put("text",iconname[i]);
                 modifiedMap.put("image",modifiedId);
                 Log.d("MainActivity","before: "+data_list);
                 Map<String,Object> ma= data_list.get(i);
                 ma=modifiedMap;
-                data_list.set(i,modifiedMap);
+                data_list.set(i,modifiedMap);*/
                 /*if(data_list.size()>40||data_list.size()<25) {
                     data_list.add(ma);
                 }else {
                     data_list.remove(i);
                 }*/
                 simpleAdapter.notifyDataSetChanged();
-                Log.d("MainActivity","after: "+data_list);
-                Log.d("MainActivity","ma: "+ma);
+                //Log.d("MainActivity","after: "+data_list);
+                //Log.d("MainActivity","ma: "+ma);
                 Log.d("MainActivity","data_list["+i+"]"+data_list.get(i));
                 Log.d("MainActivity","data_list size: "+data_list.size());
+                char piece;
+                if(isWhite){
+                    piece='W';
+                }else {
+                    piece='B';
+                }
+                isWhite = !isWhite;
+                gomoku.set_chessboard(i/rowCount,i%rowCount,piece);
+                if(gomoku.player_now_tie()){
+                    Log.d("Gomoku"," player tie");
+                    Toast.makeText(MainActivity.this, "Tie !", Toast.LENGTH_LONG).show();
+                    gomoku.init_chessboard();
+                    for(int j=0;j< rowCount *colomnCount;j++){
+                        iconname[j]=""+j;
+                        icon[j]=R.drawable.chess_board;
+                        setData_list(j,-1);
+                    }
+                    simpleAdapter.notifyDataSetChanged();
+                    isWhite=false;
+                }else if(gomoku.player_now_win(i/ rowCount, i%rowCount, piece)){
+                    Toast.makeText(MainActivity.this, "Winner: "+ piece, Toast.LENGTH_LONG).show();
+                    gomoku.init_chessboard();
+                    for(int k=0;k< rowCount *colomnCount;k++){
+                        iconname[k]=""+k;
+                        icon[k]=R.drawable.chess_board;
+                        setData_list(k,-1);
+                    }
+                    simpleAdapter.notifyDataSetChanged();
+                    isWhite=false;
+                }
+
+
+
             }
         });
 
@@ -94,6 +127,24 @@ public class MainActivity extends AppCompatActivity {
         Log.d("MainAcitivity"," parmas: "+linearParams);*/
         //gridView.setLayoutParams(linearParams);
 
+    }
+
+    public void setData_list(int index,int flag){
+        Map<String,Object> modifiedMap=new HashMap<String,Object>();
+        long modifiedId;
+        if(flag==1) {
+            modifiedId = R.drawable.chess_white;
+        }else if(flag==0){
+            modifiedId = R.drawable.chess_black;
+        }else{
+            modifiedId=R.drawable.chess_board;
+        }
+        modifiedMap.put("text",iconname[index]);
+        modifiedMap.put("image",modifiedId);
+        //Log.d("MainActivity","before: "+data_list);
+        Map<String,Object> ma= data_list.get(index);
+        ma=modifiedMap;
+        data_list.set(index,modifiedMap);
     }
     public void updateChessBoard(SimpleAdapter sa, List<Map<String,Object>> itemList,int itemId){
         Map<String,Object> modifiedMap=new HashMap<String,Object>();
