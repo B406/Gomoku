@@ -3,4 +3,4 @@
 Gomoku beginner project
 
 # TODO
-    [x]  interface for gui
+   - [x]  interface for gui
