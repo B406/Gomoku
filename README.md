@@ -7,3 +7,4 @@ Gomoku beginner project
    - [ ]  two players mode with network or bluetooth
    - [ ]  history for undo and redo
    - [ ]  AI
+   - [ ]  animation
